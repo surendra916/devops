@@ -1,0 +1,200 @@
+Centos 
+
+sudo yum install epel-release
+sudo yum install ansible
+
+
+
+Ubuntu 22.04:
+-------------
+
+sudo apt update 
+sudo apt install software-properties-common
+sudo apt-add-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible
+
+check the installation using ansible --version
+
+
+SSH connection among (CONTROL_NODE & HOST_NODES)& Ansible installation:
+------------------------------------------------------------------------------------------------
+
+1) create users in both control & host nodes as below
+
+sudo adduser masteruser
+sudo adduser hostuser 
+
+2) enable passwordless sudo on these users
+
+sudo visudo
+
+give same permissions as root 
+masteruser ALL:ALL NOPASSWD:ALL .....
+
+3) Generate a public key in the CONTROL_NODE
+
+ssh-keygen
+
+this creates a ".ssh" folder where you can find "id_rsa" "id_rsa.pub" 
+
+cat id_rsa.pub -> displays pub key
+
+4) connect to HOST_NODE
+su host1
+
+mkdir .ssh
+cd .ssh
+sudo touch authorized_keys
+paste the CONTROL_NODE'S key inside authorized_keys file
+
+5) Then try doing SSH from CONTROL_NODE TO HOST_NODE using below command 
+sudo ssh host1@172.31.41.67...
+
+you can connect successfully by now 
+
+6) In CONTROL_NODE, Add hosts under inventory file i.e., /etc/ansible/hosts
+
+i.e: 
+[apphosts]
+host1 ansible_ssh_host=host1@172.31.41.67...
+
+
+
+
+
+
+
+ansible setup on Amazon Linux:
+===============================
+
+connect to "root" user and add user like below and give "sudo permissions" to that user
+
+"sudo permissions" => A sudo permitted user can perform sudo operatiions without 
+actually giving the password everytime
+
+
+Master :
+==============================================================================
+
+1) connect to "root" user
+2) add user on both machines
+
+	useradd ansible
+	passwd ansible
+
+3) Make user as "sudo user" like below
+
+	i)visudo -> this opens up a file
+
+		Now user is able to perform sudo operations
+
+	ii) vi /etc/ssh/sshd_config => Edit 61 th line   PasswordAuthentication no to  PasswordAuthentication yes
+
+4) After above step Restart "sshd" service
+	systemctl restart sshd
+
+5) Switch user from root to ansible user 
+	su ansible 
+	cd 
+
+6) Now install ansible on master as we have sudo permissions
+
+	i) sudo yum install epel-release 
+	ii) sudo amazon-linux-extras install epel
+	iii) sudo yum install -y ansible 
+	iv) ansible --version
+		you will be able to see the version & rleated config info like "/etc/ansible/ansible.cfg"
+
+7) vi /etc/ansible/ansible.cfg
+	uncomment like below 
+	inventory /etc/ansible/hosts
+	sudo_user from root to ansible
+
+8) Add host IP addresses in the inventory file(/etc/ansible/hosts)/etc/ansible/hosts
+	vi /etc/ansible/hosts
+
+	[agents]
+	12.34.5.7 ansible_user = <user_name of host> 
+
+9) Try doing SSH connection to Host machine/node/agent
+	ssh <user_name>@12.34.5.7
+	when prompted for yes/no ? give yes => This IP will be added to known_hosts
+
+10) Generate SSH key 
+	ssh-keygen -t rsa 
+	this generates id_rsa, id_rsa.pub
+
+11) copy id_rsa.pub to authorized keys of host/agent nodes manually 
+	or
+     ssh-copy-id <username>@12.34.5.7 => this copied key to authorized_keys file if exists, if doesn't exist it 
+	creates "authorized_keys" and places the key inside
+12) now try doing SSH communication to host/agent nodes
+
+	ssh <username>@12.3.45.5
+
+13) ping host nodes as below 
+	ansible -m ping all
+
+
+
+
+Slave machine:
+================
+1) connect to root
+sudo su 
+
+2) Add user 
+useradd ansible
+passwd ansible 
+
+
+3) make this user a sudo user
+
+make changes in => visudo & /etc/ssh/sshd_config 
+
+4) Restart sshd service
+	systemctl restart sshd
+
+5) Switch user
+su ansible
+
+6) ssh-keygen
+
+
+	
+	  
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
