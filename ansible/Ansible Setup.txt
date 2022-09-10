@@ -182,6 +182,29 @@ $ansible all -m setup
 
 
 	
+Note: 
+=====
+some Ansible installations won’t create a default inventory file. If the file doesn’t exist in your system, you can create a new file at "/etc/ansible/hosts" or provide a custom inventory path using the -i parameter when running commands and playbooks.
+
+
+Inventory file setup:
+--------------------
+
+Group named [servers] with three different servers in it, each identified by a custom alias: server1, server2, and server3. Be sure to replace the highlighted IPs with the IP addresses of your Ansible hosts.
+
+[servers]
+server1 ansible_host=203.0.113.111
+server2 ansible_host=203.0.113.112
+server3 ansible_host=203.0.113.113
+
+Above server1,2,3 are the aliases given to the corresponding IP addresses.
+
+Variables:
+-----------
+The inventory file is also often used to set variables that will be valid only for specific hosts or groups, in order to be used within playbooks and templates. Some variables can also affect the way a playbook is run, like the ansible_python_interpreter
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
 	  
 	
 
